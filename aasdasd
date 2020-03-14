@@ -1,0 +1,24 @@
+from apyori import apriori
+itog=[]
+unik=[]
+import pandas as pd
+data = pd.read_csv('data.csv')
+oralb = data[(data['Товар'].str.contains('oral b') | data['Товар'].str.contains('oral-b')) & (data['Товар'].str.contains('электр')) | data['Товар'].str.contains('насадки')]
+UserWithOralBi=oralb['IDПользователя'].values
+print(len(UserWithOralBi))
+for index, row in data[:5000].iterrows():
+    if (row['IDПользователя'] in UserWithOralBi) and (str(row['Теги'])!='nan'):
+        print(index,row)
+        l=row['Теги'].split(';')
+        itog.append(l)
+                
+with open('VseTegiPoUseramKupivshimOralBi.txt', 'w') as filehandle:  
+    for listitem in itog:
+        filehandle.write('%s\n' % listitem)
+with open('VseUNIKALNIETegiPoUseramKupivshimOralBi.txt', 'w') as eb:  
+    for listitem in unik:
+        eb.write('%s\n' % listitem)
+dataset=itog
+print(dataset)
+result = list(apriori(dataset, min_support = 0.005, min_confidence = 0.2, min_lift = 4, min_length = 2))
+print(result)
