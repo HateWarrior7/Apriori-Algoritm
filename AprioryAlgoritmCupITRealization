@@ -1,0 +1,37 @@
+t=[]
+from apyori import apriori
+itog=[]
+unik=[]
+import pandas as pd
+data = pd.read_csv('data.csv')
+oralb = data[(data['Товар'].str.contains('oral b') | data['Товар'].str.contains('oral-b')) & (data['Товар'].str.contains('электр')) | data['Товар'].str.contains('насадки')]
+UserWithOralBi=oralb['IDПользователя'].values
+print(len(UserWithOralBi))
+for index, row in data.iterrows():
+    if (row['IDПользователя'] in UserWithOralBi) and (str(row['Теги'])!='nan'):
+        print(index,row)
+        l=row['Теги'].split(';')
+        for tag in l:
+            if tag.lstrip().isdigit() == True:
+                l.remove(tag)   
+        l.append('электрическая')
+        itog.append(l)
+dataset=itog
+print(dataset)
+result = list(apriori(dataset, min_support = 0.0045, min_confidence = 0.2, min_lift = 4, min_length = 2))
+as_result=list(result)
+print(len(as_result))
+print(as_result[0]) 
+for item in as_result:
+
+    # first index of the inner list
+    # Contains base item and add item
+    pair = item[0] 
+    items = [x for x in pair]
+    if items[0]=='электрическая':
+        t.append([items[1],item[1],item[2][0][2],item[2][0][3]])
+t.sort(key=lambda i: i[3],reverse=1)
+print(t)
+with open('OskarSJob', 'w') as filehandle:  
+    for listitem in t:
+        filehandle.write('%s\n' % listitem)
